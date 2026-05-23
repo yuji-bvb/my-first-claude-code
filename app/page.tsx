@@ -6,18 +6,20 @@ import PartCard from './components/PartCard'
 import PartModal from './components/PartModal'
 import StockModal from './components/StockModal'
 import CsvImportModal from './components/CsvImportModal'
+import CalendarView from './components/CalendarView'
 import { Part } from '@/lib/types'
 
 type ModalState =
   | { type: 'none' }
   | { type: 'add' }
   | { type: 'csvImport' }
+  | { type: 'calendar' }
   | { type: 'edit'; part: Part }
   | { type: 'stockIn'; part: Part }
   | { type: 'stockOut'; part: Part }
 
 export default function Home() {
-  const { parts, categories, addPart, updatePart, deletePart, stockIn, stockOut, bulkAddParts } = useInventory()
+  const { parts, logs, categories, addPart, updatePart, deletePart, stockIn, stockOut, bulkAddParts } = useInventory()
   const [modal, setModal] = useState<ModalState>({ type: 'none' })
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [search, setSearch] = useState('')
@@ -45,6 +47,12 @@ export default function Home() {
             )}
           </div>
           <div className="flex gap-2">
+            <button
+              onClick={() => setModal({ type: 'calendar' })}
+              className="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              履歴
+            </button>
             <button
               onClick={() => setModal({ type: 'csvImport' })}
               className="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
@@ -115,6 +123,13 @@ export default function Home() {
         )}
       </main>
 
+      {modal.type === 'calendar' && (
+        <CalendarView
+          logs={logs}
+          parts={parts}
+          onClose={() => setModal({ type: 'none' })}
+        />
+      )}
       {modal.type === 'csvImport' && (
         <CsvImportModal
           onImport={bulkAddParts}
