@@ -5,17 +5,19 @@ import { useInventory } from './hooks/useInventory'
 import PartCard from './components/PartCard'
 import PartModal from './components/PartModal'
 import StockModal from './components/StockModal'
+import CsvImportModal from './components/CsvImportModal'
 import { Part } from '@/lib/types'
 
 type ModalState =
   | { type: 'none' }
   | { type: 'add' }
+  | { type: 'csvImport' }
   | { type: 'edit'; part: Part }
   | { type: 'stockIn'; part: Part }
   | { type: 'stockOut'; part: Part }
 
 export default function Home() {
-  const { parts, categories, addPart, updatePart, deletePart, stockIn, stockOut } = useInventory()
+  const { parts, categories, addPart, updatePart, deletePart, stockIn, stockOut, bulkAddParts } = useInventory()
   const [modal, setModal] = useState<ModalState>({ type: 'none' })
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [search, setSearch] = useState('')
@@ -42,12 +44,20 @@ export default function Home() {
               <p className="text-xs text-yellow-600 font-medium">{lowStockCount}件 在庫不足</p>
             )}
           </div>
-          <button
-            onClick={() => setModal({ type: 'add' })}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-          >
-            + 部品追加
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setModal({ type: 'csvImport' })}
+              className="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              CSV一括追加
+            </button>
+            <button
+              onClick={() => setModal({ type: 'add' })}
+              className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              + 部品追加
+            </button>
+          </div>
         </div>
       </header>
 
@@ -105,6 +115,12 @@ export default function Home() {
         )}
       </main>
 
+      {modal.type === 'csvImport' && (
+        <CsvImportModal
+          onImport={bulkAddParts}
+          onClose={() => setModal({ type: 'none' })}
+        />
+      )}
       {modal.type === 'add' && (
         <PartModal
           categories={categories}

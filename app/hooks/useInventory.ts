@@ -83,7 +83,20 @@ export function useInventory() {
     saveParts(updated)
   }, [parts, logs])
 
+  const bulkAddParts = useCallback((items: Omit<Part, 'id' | 'createdAt' | 'updatedAt'>[]) => {
+    const now = new Date().toISOString()
+    const newParts: Part[] = items.map(item => ({
+      ...item,
+      id: generateId(),
+      createdAt: now,
+      updatedAt: now,
+    }))
+    const updated = [...parts, ...newParts]
+    setParts(updated)
+    saveParts(updated)
+  }, [parts])
+
   const categories = Array.from(new Set(parts.map(p => p.category))).filter(Boolean)
 
-  return { parts, logs, categories, addPart, updatePart, deletePart, stockIn, stockOut }
+  return { parts, logs, categories, addPart, updatePart, deletePart, stockIn, stockOut, bulkAddParts }
 }
